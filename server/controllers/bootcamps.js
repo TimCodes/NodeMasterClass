@@ -9,14 +9,14 @@ export default ({ config, db }) =>
      *  Errors terminate the request, success sets `req[id] = data`.
      */
     load(req, id, callback) {
-      let bootcamp = bootcamps.find((bootcamp) => bootcamp.id === id),
+      let bootcamps = bootcamps.find((bootcamp) => bootcamp.id === id),
         err = bootcamp ? null : "Not found";
       callback(err, bootcamp);
     },
 
     /** GET / - List all entities */
     index({ params }, res) {
-      res.json(bootcamp);
+      res.json({ bootcamps: [] });
     },
 
     /** POST / - Create a new entity */
