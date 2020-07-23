@@ -1,0 +1,51 @@
+{
+  "name": "node-master-class",
+  "version": "1.0.0",
+  "description": "refreahser for node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "stat": "NODE_ENV=production node server",
+    "start": "npm run prod",
+    "build": "npm-run-all clean transpile",
+    "server": "node ./lib/server",
+    "dev": "npm-run-all build server",
+    "prod": "SET NODE_ENV=production npm-run-all build server",
+    "transpile": "babel ./server --out-dir lib",
+    "clean": "rimraf dist-server",
+    "watch:dev": "nodemon"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "nodemon": "^2.0.4",
+    "npm-run-all": "^4.1.5"
+  },
+  "nodemonConfig": {
+    "exec": "npm run dev",
+    "watch": [
+      "server/*",
+      "public/*"
+    ],
+    "ignore": [
+      "**/__tests__/**",
+      "*.test.js",
+      "*.spec.js"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
