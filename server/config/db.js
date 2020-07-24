@@ -6,8 +6,7 @@ const connectDb = async () => {
     useFindAndModify: false,
     useUnifiedTopology: true,
   });
-  console.log(`${process.env.MONGO_URI}`);
-  console.log(`Mongo Connected ${conn.connection.host}`);
+  console.log(`Mongo Connected To Host: ${conn.connection.host}`.cyan.bold);
 };
 
 export default connectDb;

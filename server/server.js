@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import colors from "colors";
 
 import middleware from "./middleware";
 import api from "./controllers";
@@ -29,14 +30,15 @@ app.use("/api", api({ config, db }));
 const server = app.listen(
   port,
   console.log(
-    `server is runnins g at env:  ${process.env.NODE_ENV} Port: ${process.env.PORT}`
+    `server is running in environment:  ${process.env.NODE_ENV} on Port: ${process.env.PORT}`
+      .green.bold
   )
 );
 
 // Handle unhandled promise errors
 
 process.on("unhandledRejection", (err, promise) => {
-  console.log(`Unhandeled Error: ${error.message}`);
+  console.log(`Unhandeled Error: ${error.message}`.red);
   //close server and exit process
   server.close(() => proccess.exit(1));
 });

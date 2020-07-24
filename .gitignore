@@ -1,4 +1,4 @@
 node_modules/
-confgi/config.env
+config/config.env
 lib/
 .env
