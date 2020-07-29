@@ -1,5 +1,6 @@
 import resource from "resource-router-middleware";
-import bootcamps from "../models/bootcamps";
+import Bootcamp from "../models/bootcamps";
+import { model } from "mongoose";
 export default ({ config, db }) =>
   resource({
     /** Property name to store preloaded entity on `request`. */
@@ -8,42 +9,78 @@ export default ({ config, db }) =>
     /** For requests with an `id`, you can auto-load the entity.
      *  Errors terminate the request, success sets `req[id] = data`.
      */
-    load(req, id, callback) {
-      let bootcamps = bootcamps.find((bootcamp) => bootcamp.id === id),
+    async load(req, id, callback) {
+      console.log("laod ");
+      const bootcamp = await Bootcamp.findById(id),
         err = bootcamp ? null : "Not found";
       callback(err, bootcamp);
     },
 
     /** GET / - List all entities */
-    index({ params }, res) {
-      res.json({ bootcamps: [] });
+    async index({ params }, res) {
+      try {
+        const bootcamps = await Bootcamp.find();
+        res
+          .status(200)
+          .json({ succes: true, data: { count: bootcamps.length, bootcamps } });
+      } catch (error) {
+        res.status(400).json({ succeess: false, message: error });
+      }
     },
 
     /** POST / - Create a new entity */
-    create({ body }, res) {
-      body.id = bootcamps.length.toString(36);
-      bootcamps.push(body);
-      res.json(body);
+    // @desc Create New Bootcamp
+    // @route Post/api/bootcamps
+    // /api/v1/bootcamps
+    async create({ body }, res) {
+      try {
+        const bootcamp = await Bootcamp.create(body);
+        res.status(201).json({
+          succeess: true,
+          data: bootcamp,
+        });
+      } catch (error) {
+        res.status(400).json({ succeess: false, message: error });
+      }
     },
 
     /** GET /:id - Return a given entity */
-    read({ bootcamp }, res) {
-      res.json(bootcamp);
+    async read({ bootcamp, id }, res) {
+      try {
+        res.json({ success: true, data: bootcamp });
+      } catch (error) {
+        res.status(400).json({ succeess: false, message: error });
+      }
     },
 
     /** PUT /:id - Update a given entity */
-    update({ bootcamp, body }, res) {
-      for (let key in body) {
-        if (key !== "id") {
-          bootcamp[key] = body[key];
-        }
+    async update({ bootcamp, body, id }, res) {
+      console.log(bootcamp.id);
+      console.log(id);
+      Bootcamp.de;
+      try {
+        const updatedBootcamp = await Bootcamp.findByIdAndUpdate(
+          bootcamp.id,
+          body,
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+        console.log(updatedBootcamp);
+        res.json({ success: true, data: updatedBootcamp });
+      } catch (error) {
+        res.status(400).json({ succeess: false, message: error });
       }
-      res.sendStatus(204);
     },
 
     /** DELETE /:id - Delete a given entity */
-    delete({ bootcamp }, res) {
-      bootcamps.splice(bootcamps.indexOf(bootcamp), 1);
-      res.sendStatus(204);
+    async delete({ bootcamp }, res) {
+      try {
+        await Bootcamp.deleteOne({ _id: bootcamp.id });
+        res.status(204).json({ succeess: true, data: {} });
+      } catch (error) {
+        res.status(400).json({ succeess: false, message: error });
+      }
     },
   });

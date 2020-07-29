@@ -9,16 +9,19 @@ import api from "./controllers";
 import connectDb from "./config/db";
 
 dotenv.config();
-const app = express();
+
 const port = process.env.PORT || 5001;
 const config = {};
 const db = {};
+const app = express();
+
+// Use Body Parser
+app.use(express.json());
+// external middleware here
+app.use(morgan("combined"));
 
 // connect to db
 connectDb();
-
-// external middleware here
-app.use(morgan("combined"));
 
 // use only in development
 if (process.env.NODE_ENV === "development") {
@@ -38,7 +41,7 @@ const server = app.listen(
 // Handle unhandled promise errors
 
 process.on("unhandledRejection", (err, promise) => {
-  console.log(`Unhandeled Error: ${error.message}`.red);
+  console.log(`Unhandeled Error: ${err.message}`.red);
   //close server and exit process
   server.close(() => proccess.exit(1));
 });
