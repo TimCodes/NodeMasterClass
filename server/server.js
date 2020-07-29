@@ -29,7 +29,10 @@ if (process.env.NODE_ENV === "development") {
 }
 // api router
 app.use("/api", api({ config, db }));
-
+// use only in development
+if (process.env.NODE_ENV === "development") {
+  app.use(middleware({ config, db }));
+}
 const server = app.listen(
   port,
   console.log(

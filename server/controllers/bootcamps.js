@@ -9,15 +9,23 @@ export default ({ config, db }) =>
     /** For requests with an `id`, you can auto-load the entity.
      *  Errors terminate the request, success sets `req[id] = data`.
      */
-    async load(req, id, callback) {
+    async load(req, id, callback, next) {
       console.log("laod ");
-      const bootcamp = await Bootcamp.findById(id),
-        err = bootcamp ? null : "Not found";
-      callback(err, bootcamp);
+      console.log("id ", id);
+      //console.log(arguments);
+      console.log(req.next);
+
+      try {
+        const bootcamp = await Bootcamp.findById(id),
+          err = bootcamp ? null : "Not found";
+        callback(err, bootcamp);
+      } catch (error) {
+        req.next(error);
+      }
     },
 
     /** GET / - List all entities */
-    async index({ params }, res) {
+    async index({ params }, res, next) {
       try {
         const bootcamps = await Bootcamp.find();
         res
@@ -45,10 +53,12 @@ export default ({ config, db }) =>
     },
 
     /** GET /:id - Return a given entity */
-    async read({ bootcamp, id }, res) {
+    async read({ bootcamp, id }, res, next) {
+      console.log("id", id);
       try {
         res.json({ success: true, data: bootcamp });
       } catch (error) {
+        next(error);
         res.status(400).json({ succeess: false, message: error });
       }
     },
