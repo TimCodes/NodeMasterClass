@@ -45,6 +45,6 @@ const server = app.listen(
 
 process.on("unhandledRejection", (err, promise) => {
   console.log(`Unhandeled Error: ${err.message}`.red);
-  //close server and exit process
-  server.close(() => proccess.exit(1));
+  //close server and exit processs
+  server.close(() => process.exit(1));
 });

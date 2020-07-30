@@ -10,7 +10,7 @@
     "build": "npm-run-all clean transpile",
     "server": "node ./lib/server",
     "dev": "npm-run-all build server",
-    "prod": "SET NODE_ENV=production npm-run-all build server",
+    "prod": "SET NODE_ENV=production npm-run-all geocode build server",
     "transpile": "babel ./server --out-dir lib",
     "clean": "rimraf dist-server",
     "watch:dev": "nodemon"
@@ -28,8 +28,10 @@
     "express": "^4.17.1",
     "mongoose": "^5.9.25",
     "morgan": "^1.10.0",
+    "node-geocoder": "^3.27.0",
     "resource-router-middleware": "^0.7.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "slugify": "^1.4.5"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

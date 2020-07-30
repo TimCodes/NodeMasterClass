@@ -1,6 +1,7 @@
 import resource from "resource-router-middleware";
 import Bootcamp from "../models/bootcamps";
-import { model } from "mongoose";
+console.log(" ------- processs env server -----------------");
+console.log(Object.keys(process.env));
 export default ({ config, db }) =>
   resource({
     /** Property name to store preloaded entity on `request`. */
@@ -10,11 +11,6 @@ export default ({ config, db }) =>
      *  Errors terminate the request, success sets `req[id] = data`.
      */
     async load(req, id, callback, next) {
-      console.log("laod ");
-      console.log("id ", id);
-      //console.log(arguments);
-      console.log(req.next);
-
       try {
         const bootcamp = await Bootcamp.findById(id),
           err = bootcamp ? null : "Not found";
@@ -40,7 +36,7 @@ export default ({ config, db }) =>
     // @desc Create New Bootcamp
     // @route Post/api/bootcamps
     // /api/v1/bootcamps
-    async create({ body }, res) {
+    async create({ body }, res, next) {
       try {
         const bootcamp = await Bootcamp.create(body);
         res.status(201).json({
@@ -48,26 +44,21 @@ export default ({ config, db }) =>
           data: bootcamp,
         });
       } catch (error) {
-        res.status(400).json({ succeess: false, message: error });
+        next(error);
       }
     },
 
     /** GET /:id - Return a given entity */
     async read({ bootcamp, id }, res, next) {
-      console.log("id", id);
       try {
         res.json({ success: true, data: bootcamp });
       } catch (error) {
         next(error);
-        res.status(400).json({ succeess: false, message: error });
       }
     },
 
     /** PUT /:id - Update a given entity */
-    async update({ bootcamp, body, id }, res) {
-      console.log(bootcamp.id);
-      console.log(id);
-      Bootcamp.de;
+    async update({ bootcamp, body, id }, res, next) {
       try {
         const updatedBootcamp = await Bootcamp.findByIdAndUpdate(
           bootcamp.id,
@@ -77,20 +68,19 @@ export default ({ config, db }) =>
             runValidators: true,
           }
         );
-        console.log(updatedBootcamp);
         res.json({ success: true, data: updatedBootcamp });
       } catch (error) {
-        res.status(400).json({ succeess: false, message: error });
+        next(error);
       }
     },
 
     /** DELETE /:id - Delete a given entity */
-    async delete({ bootcamp }, res) {
+    async delete({ bootcamp }, res, next) {
       try {
         await Bootcamp.deleteOne({ _id: bootcamp.id });
         res.status(204).json({ succeess: true, data: {} });
       } catch (error) {
-        res.status(400).json({ succeess: false, message: error });
+        next(error);
       }
     },
   });
