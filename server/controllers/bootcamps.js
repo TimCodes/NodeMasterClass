@@ -1,7 +1,7 @@
 import resource from "resource-router-middleware";
 import Bootcamp from "../models/bootcamps";
-console.log(" ------- processs env server -----------------");
-console.log(Object.keys(process.env));
+import geocoder from "../utils/geocoder";
+
 export default ({ config, db }) =>
   resource({
     /** Property name to store preloaded entity on `request`. */
@@ -84,3 +84,34 @@ export default ({ config, db }) =>
       }
     },
   });
+
+// custom route methods
+
+const getBootCampsInRadius = async ({ params }, res, next) => {
+  try {
+    // get lat/long from geocoder
+    const { zipcode, distance } = params;
+    const loc = await geocoder.geocode(zipcode);
+    const lat = loc[0].latitude;
+    const lng = loc[0].longitude;
+
+    console.log(zipcode, distance);
+    console.log(loc);
+    //calc radius using radians
+    // divide dist by radius
+    // Radius of earth = 3,963 miles
+    const radius = distance / 3963;
+
+    const bootcamps = await Bootcamp.find({
+      location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+    });
+
+    console.log(bootcamps);
+
+    res.json({ success: true, data: bootcamps });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getBootCampsInRadius };
