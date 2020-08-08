@@ -21,9 +21,36 @@ export default ({ config, db }) =>
     },
 
     /** GET / - List all entities */
-    async index({ params }, res, next) {
+    async index({ params, query }, res, next) {
+      const reqQuery = { ...query };
+      // get query strings that are for
+      // selecting and pagination, etc...
+      const { select, sort } = query;
+
+      // Exclude these field
+      const removeFields = ["select", "sort"];
+      removeFields.forEach((p) => delete reqQuery[p]);
+
+      let queryStr = JSON.stringify(reqQuery);
+      queryStr = queryStr.replace(
+        /\b(gt|gte|lt|lte|in)\b/g,
+        (match) => "$" + match
+      );
+
+      let mongooseQuery = Bootcamp.find(JSON.parse(queryStr));
+      if (select) {
+        const fields = select.split(",");
+        mongooseQuery = mongooseQuery.select(fields);
+      }
+      if (sort) {
+        const sortBy = sort.split(",").join(" ");
+        mongooseQuery = mongooseQuery.sort(sortBy);
+      } else {
+        mongooseQuery = mongooseQuery.sort("-createdAt");
+      }
+
       try {
-        const bootcamps = await Bootcamp.find();
+        const bootcamps = await mongooseQuery;
         res
           .status(200)
           .json({ succes: true, data: { count: bootcamps.length, bootcamps } });
@@ -49,7 +76,9 @@ export default ({ config, db }) =>
     },
 
     /** GET /:id - Return a given entity */
-    async read({ bootcamp, id }, res, next) {
+    async read({ bootcamp, id, query }, res, next) {
+      console.log("get bootcam p");
+
       try {
         res.json({ success: true, data: bootcamp });
       } catch (error) {
@@ -95,8 +124,6 @@ const getBootCampsInRadius = async ({ params }, res, next) => {
     const lat = loc[0].latitude;
     const lng = loc[0].longitude;
 
-    console.log(zipcode, distance);
-    console.log(loc);
     //calc radius using radians
     // divide dist by radius
     // Radius of earth = 3,963 miles
