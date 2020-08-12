@@ -1,12 +1,13 @@
-import fs from "fs";
-import mongoose from "mongoose";
-import colors from "colors";
-import dotenv from "dotenv";
+const fs = require("fs");
+const mongoose = require("mongoose");
+const colors = require("colors");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
 // Load models
-import Bootcamp from "./models/bootcamps";
+const Bootcamp = require("./models/Bootcamp");
+const Course = require("./models/Course");
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -20,12 +21,14 @@ mongoose.connect(process.env.MONGO_URI, {
 const bootcamps = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/bootcamps.json`, "utf-8")
 );
-
+const courses = JSON.parse(
+  fs.readFileSync(`${__dirname}/_data/courses.json`, "utf-8")
+);
 // Import into DB
 const importData = async () => {
   try {
-    await Bootcamps.create(bootcamps);
-    //   await Course.create(courses);
+    await Bootcamp.create(bootcamps);
+    await Course.create(courses);
     //   await User.create(users);
     //   await Review.create(reviews);
     console.log("Data Imported...".green.inverse);
@@ -39,7 +42,7 @@ const importData = async () => {
 const deleteData = async () => {
   try {
     await Bootcamp.deleteMany();
-    //   await Course.deleteMany();
+    await Course.deleteMany();
     //   await User.deleteMany();
     //   await Review.deleteMany();
     console.log("Data Destroyed...".red.inverse);

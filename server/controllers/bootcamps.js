@@ -1,5 +1,5 @@
 import resource from "resource-router-middleware";
-import Bootcamp from "../models/bootcamps";
+import Bootcamp from "../models/Bootcamp";
 import geocoder from "../utils/geocoder";
 
 export default ({ config, db }) =>
@@ -25,10 +25,10 @@ export default ({ config, db }) =>
       const reqQuery = { ...query };
       // get query strings that are for
       // selecting and pagination, etc...
-      const { select, sort } = query;
+      const { select, sort, page, limit } = query;
 
       // Exclude these field
-      const removeFields = ["select", "sort"];
+      const removeFields = ["select", "sort", "page", "limit"];
       removeFields.forEach((p) => delete reqQuery[p]);
 
       let queryStr = JSON.stringify(reqQuery);
@@ -38,10 +38,14 @@ export default ({ config, db }) =>
       );
 
       let mongooseQuery = Bootcamp.find(JSON.parse(queryStr));
+
+      // get only selected fields
       if (select) {
         const fields = select.split(",");
         mongooseQuery = mongooseQuery.select(fields);
       }
+
+      // sorty documents
       if (sort) {
         const sortBy = sort.split(",").join(" ");
         mongooseQuery = mongooseQuery.sort(sortBy);
@@ -49,11 +53,41 @@ export default ({ config, db }) =>
         mongooseQuery = mongooseQuery.sort("-createdAt");
       }
 
+      // pagination
+
+      let pageNum = page ? parseInt(page, 10) : 0;
+      let limitNum = limit ? parseInt(limit, 10) : 2;
+      let startIdx = pageNum > 0 ? (pageNum - 1) * limitNum : 0;
+      let endIdx = pageNum * limitNum;
+      let total = await Bootcamp.countDocuments();
+
+      //pagination result
+      console.log(endIdx);
+      console.log(total);
+      let pagination = {};
+      if (endIdx < total) {
+        pagination.next = {
+          pageNum: pageNum + 1,
+          limit: limitNum,
+        };
+      }
+
+      if (startIdx > 0) {
+        pagination.prev = {
+          page: pageNum - 1,
+          limit: limitNum,
+        };
+      }
+
+      mongooseQuery = mongooseQuery.skip(startIdx).limit(limitNum);
+
       try {
         const bootcamps = await mongooseQuery;
-        res
-          .status(200)
-          .json({ succes: true, data: { count: bootcamps.length, bootcamps } });
+
+        res.status(200).json({
+          succes: true,
+          data: { count: bootcamps.length, pagination, bootcamps },
+        });
       } catch (error) {
         res.status(400).json({ succeess: false, message: error });
       }

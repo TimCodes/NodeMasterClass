@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import slugify from "slugify";
-import geocoder from "../utils/geocoder";
+const mongoose = require("mongoose");
+const slugify = require("slugify");
+const geocoder = require("../utils/geocoder");
 
 const BootcampSchema = new mongoose.Schema(
   {
@@ -135,4 +135,4 @@ BootcampSchema.pre("save", async function (next) {
   this.address = undefined;
   next();
 });
-export default mongoose.model("Bootcamp", BootcampSchema);
+module.exports = mongoose.model("Bootcamp", BootcampSchema);

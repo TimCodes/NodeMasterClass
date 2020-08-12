@@ -1,5 +1,5 @@
-import NodeGeoCoder from "node-geocoder";
-import dotenv from "dotenv";
+const NodeGeoCoder = require("node-geocoder");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
@@ -12,4 +12,4 @@ const options = {
 
 const geocoder = NodeGeoCoder(options);
 
-export default geocoder;
+module.exports = geocoder;
