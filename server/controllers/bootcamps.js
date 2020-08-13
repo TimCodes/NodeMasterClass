@@ -37,7 +37,9 @@ export default ({ config, db }) =>
         (match) => "$" + match
       );
 
-      let mongooseQuery = Bootcamp.find(JSON.parse(queryStr));
+      let mongooseQuery = Bootcamp.find(JSON.parse(queryStr)).populate(
+        "courses"
+      );
 
       // get only selected fields
       if (select) {
@@ -62,8 +64,7 @@ export default ({ config, db }) =>
       let total = await Bootcamp.countDocuments();
 
       //pagination result
-      console.log(endIdx);
-      console.log(total);
+
       let pagination = {};
       if (endIdx < total) {
         pagination.next = {
@@ -140,7 +141,10 @@ export default ({ config, db }) =>
     /** DELETE /:id - Delete a given entity */
     async delete({ bootcamp }, res, next) {
       try {
-        await Bootcamp.deleteOne({ _id: bootcamp.id });
+        //const bootcamp = await Bootcamp.findById(bootcamp.id);
+        console.log("delete bootcamp");
+
+        await bootcamp.remove();
         res.status(204).json({ succeess: true, data: {} });
       } catch (error) {
         next(error);

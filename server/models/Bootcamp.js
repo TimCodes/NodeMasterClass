@@ -135,4 +135,21 @@ BootcampSchema.pre("save", async function (next) {
   this.address = undefined;
   next();
 });
+
+// Cascade delete courses when bootcamp is deleted
+BootcampSchema.pre("remove", async function (next) {
+  await this.model("Course").deleteMany({
+    bootcamp: this._id,
+  });
+  next();
+});
+
+// reverse popuplate with virtuals
+BootcampSchema.virtual("courses", {
+  ref: "Course",
+  localField: "_id",
+  foreignField: "bootcamp",
+  justOne: false,
+});
+
 module.exports = mongoose.model("Bootcamp", BootcampSchema);

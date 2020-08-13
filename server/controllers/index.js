@@ -10,11 +10,11 @@ export default ({ config, db }) => {
 
   // mount the bootcamps resource
   api.use("/bootcamps", bootcamps({ config, db }));
-  api.use("/bootcamps/radius/:zipcode/:distance", getBootCampsInRadius);
+  api.get("/bootcamps/radius/:zipcode/:distance", getBootCampsInRadius);
 
   // mount the Courses resource
   api.use("/courses", courses({ config, db }));
-  api.use("/bootcamps/:bootcampId/courses", getCourses);
+  api.get("/bootcamps/:bootcampId/courses", getCourses);
 
   // perhaps expose some API metadata at the root
   api.get("/", (req, res) => {

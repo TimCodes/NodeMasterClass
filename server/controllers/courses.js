@@ -5,7 +5,7 @@ import Bootcamp from "../models/Bootcamp";
 export default ({ config, db }) =>
   resource({
     /** Property name to store preloaded entity on `request`. */
-    id: "Course",
+    id: "course",
 
     /** For requests with an `id`, you can auto-load the entity.
      *  Errors terminate the request, success sets `req[id] = data`.
@@ -14,6 +14,7 @@ export default ({ config, db }) =>
       try {
         const course = await Course.findById(id),
           err = course ? null : "Not found";
+        console.log(course);
         callback(err, course);
       } catch (error) {
         req.next(error);
@@ -38,24 +39,36 @@ export default ({ config, db }) =>
     },
 
     /** GET /:id - Return a given entity */
-    async read({ Course }, res) {
-      res.json(Course);
+    async read({ course }, res) {
+      console.log("get single course", course);
+      try {
+        res.json({ success: true, data: course });
+      } catch (error) {
+        next(error);
+      }
     },
 
     /** PUT /:id - Update a given entity */
-    async update({ Course, body }, res) {
-      for (let key in body) {
-        if (key !== "id") {
-          Course[key] = body[key];
-        }
+    async update({ course, body }, res, next) {
+      try {
+        const updatedCourse = await Course.findByIdAndUpdate(course.id, body, {
+          new: true,
+          runValidators: true,
+        });
+        res.json({ success: true, data: updatedCourse });
+      } catch (error) {
+        next(error);
       }
-      res.sendStatus(204);
     },
 
     /** DELETE /:id - Delete a given entity */
-    async delete({ Course }, res) {
-      Courses.splice(Courses.indexOf(Course), 1);
-      res.sendStatus(204);
+    async delete({ course }, res, next) {
+      try {
+        course.remove();
+        res.status(204).json({ succeess: true, data: {} });
+      } catch (error) {
+        next();
+      }
     },
   });
 
@@ -67,7 +80,10 @@ async function getCourses({ params }, res, next) {
     if (bootcampId) {
       mongooseQuery = Course.find({ bootcamp: bootcampId });
     } else {
-      mongooseQuery = Course.find();
+      mongooseQuery = Course.find().populate({
+        path: "bootcamp",
+        select: "name description",
+      });
     }
     const coures = await mongooseQuery;
     res.status(200).json({ data: coures });
